@@ -5,7 +5,7 @@ A versatile and customizable language model assistant using OpenAI.
 ## Demo
 
 <p align="center">
-<img src="agent.gif" alt="demo" width="70%">
+<img src="./Agent.gif" alt="demo" width="70%">
 
 <p align="center">
 
