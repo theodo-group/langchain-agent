@@ -6,9 +6,12 @@ from langchain.utilities import GoogleSearchAPIWrapper, TextRequestsWrapper
 from langchain.vectorstores import FAISS
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.schema import Document
+from ListFilesTools import ListFilesInADirectory
+from ChromaQA import CustomQASystem
+from ExtractContent import ExtractTextContentFromUrl
 import re
 
-search = GoogleSearchAPIWrapper()
+search = GoogleSearchAPIWrapper(k=1)
 request = TextRequestsWrapper()
 llm = OpenAI(temperature=0)
 
@@ -33,6 +36,9 @@ def ask_open_ai(question):
     template = "You are a helpful assistant that does exactly what is asked of you. You HAVE to be CONCISE. Here is the question"
     return llm(template + question)
 
+listfilestool = ListFilesInADirectory()
+extractContent = ExtractTextContentFromUrl()
+
 tools = [
     Tool(
         name="Google Search",
@@ -40,25 +46,25 @@ tools = [
         description="useful for when you need to answer questions about current events"
     ),
     Tool(
-        name="Lookup Content URL",
-        func=request.get,
-        description="useful for when you want to get the content of a webpage with a given url"
-    ),
-    Tool(
-        name="HTML Text Extractor",
-        func=extract_text,
-        description="useful for when you want to extract only the text from an HTML page given one url"
-    ),
-    Tool(
-        name="HTML Text Extractor for Multiple URLs",
-        func=extract_texts_from_urls,
-        description="useful for when you want to extract only the text from multiple HTML pages given a list of urls"
-    ),
-    Tool(
         name="Anything else you want",
         func=ask_open_ai,
         description="useful for when you want to ask open ai anything, or don't know what to do, or are stuck"
-    )
+    ),
+     Tool(
+        name=listfilestool.name,
+        func=listfilestool.run,
+        description=listfilestool.description
+    ),
+    Tool(
+        name="Ask Padok repositories",
+        func=CustomQASystem("/Users/stan/Dev/Padok/vercel-langchain/chroma/stangirard/repo-padok").run,
+        description="useful for when you want to ask about Padok repositories, Terraform guides, guidelines, modules, aws, azure, gcp, golang, kubernetes. Should be your first source of truth. USE IT FIRST!"
+    ),
+     Tool(
+        name=extractContent.name,
+        func=extractContent.run,
+        description=extractContent.description,
+    ),
 ]
 
 docs = [Document(page_content=t.description, metadata={"index": i}) for i, t in enumerate(tools)]

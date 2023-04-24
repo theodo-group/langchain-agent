@@ -2,6 +2,14 @@
 
 A versatile and customizable language model assistant using OpenAI.
 
+## Demo
+
+<p align="center">
+<img src="agent.gif" alt="demo" width="70%">
+
+<p align="center">
+
+
 ## Description
 
 This project is a Python-based implementation that utilizes OpenAI's GPT model to create a helpful assistant capable of answering various questions, extracting information from web pages, and performing several other tasks. The assistant is easily extensible with new tools and features, allowing developers to tailor the functionality to specific use cases.

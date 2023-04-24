@@ -92,11 +92,11 @@ class Assistant:
 
     def execute(self, query: str):
         self.agent_executor.run(query)
-        time.sleep(10)
 
 
 if __name__ == "__main__":
     assistant = Assistant()
     # assistant.execute("What is the French company BAM.tech?")
     # assistant.execute("Extract the text content of this web page https://whatthecommit.com/ ")
-    assistant.execute("What is a good way to say goodbye to someone?")
+    # assistant.execute("What are the python files in this directory?")
+    assistant.execute("What do they do https://bam.tech ?")
