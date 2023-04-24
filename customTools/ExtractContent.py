@@ -9,9 +9,9 @@ class ExtractTextContentFromUrl:
     name = "extract-text-content-from-url"
     description = (
         "It extracts the text content from a URL. It requests the content of the URL. "
-        "Useful when you want to know what a page says. The action input should adhere "
+        "Useful when you want to know what a page says. The action input MUST adhere "
         "to this JSON schema: "
-        '{"type":"object","properties":{"url":{"type":"string","format":"uri"}},"required":["url"]}'
+        '{"type":"object","properties":{"url":{"type":"string","format":"uri", "description": "The url to extract content from"} },"required":["url"]}'
     )
 
     input_schema = {
@@ -61,11 +61,18 @@ class ExtractTextContentFromUrl:
         ## Limit the text to 2000 words
         text_content = " ".join(text_content.split(" ")[:2000])
         output = {"textContent": text_content}
-        ExtractTextContentFromUrl.validate(output, ExtractTextContentFromUrl.output_schema)
+        # ExtractTextContentFromUrl.validate(output, ExtractTextContentFromUrl.output_schema)
         return output
 
     def run(self, arg: str) -> str:
-        input_data = json.loads(arg)
-        self.validate(input_data, self.input_schema)
-        output = self.call(input_data)
-        return json.dumps(output)
+        try:
+            print(f"Input JSON: {arg}")
+            input_data = json.loads(arg)
+            self.validate(input_data, self.input_schema)
+            output = self.call(input_data)
+            print(f"Output JSON: {output}")
+
+            return json.dumps(output)
+        except ValueError as e:
+            return json.dumps({"error": str(e)})
+        

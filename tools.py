@@ -1,15 +1,21 @@
+import re
 from typing import Any, List, Tuple, Union
+
 from bs4 import BeautifulSoup
 from langchain import OpenAI, SerpAPIWrapper
 from langchain.agents import Tool, tool
-from langchain.utilities import GoogleSearchAPIWrapper, TextRequestsWrapper
-from langchain.vectorstores import FAISS
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.schema import Document
-from ListFilesTools import ListFilesInADirectory
-from ChromaQA import CustomQASystem
-from ExtractContent import ExtractTextContentFromUrl
-import re
+from langchain.utilities import (BashProcess, GoogleSearchAPIWrapper,
+                                 TextRequestsWrapper)
+from langchain.vectorstores import FAISS
+
+from customTools.ChromaQA import CustomQASystem
+from customTools.ExtractContent import ExtractTextContentFromUrl
+from customTools.ListFilesTools import ListFilesInADirectory
+from customTools.terraform import TerraformValidateTool
+from langchain.tools.file_management.write import WriteFileTool
+from langchain.tools.file_management.read import ReadFileTool
 
 search = GoogleSearchAPIWrapper(k=1)
 request = TextRequestsWrapper()
@@ -45,11 +51,6 @@ tools = [
         func=search.run,
         description="useful for when you need to answer questions about current events"
     ),
-    Tool(
-        name="Anything else you want",
-        func=ask_open_ai,
-        description="useful for when you want to ask open ai anything, or don't know what to do, or are stuck"
-    ),
      Tool(
         name=listfilestool.name,
         func=listfilestool.run,
@@ -57,14 +58,24 @@ tools = [
     ),
     Tool(
         name="Ask Padok repositories",
-        func=CustomQASystem("/Users/stan/Dev/Padok/vercel-langchain/chroma/stangirard/repo-padok").run,
-        description="useful for when you want to ask about Padok repositories, Terraform guides, guidelines, modules, aws, azure, gcp, golang, kubernetes. Should be your first source of truth. USE IT FIRST!"
+        func=CustomQASystem("/Users/stan/Dev/Padok/vercel-langchain/chroma/stangirard/terraform").run,
+        description="useful for when you want to ask about   terraform, yatas, Terraform guides, guidelines, modules, aws, azure, gcp, golang, kubernetes"
     ),
+
      Tool(
         name=extractContent.name,
         func=extractContent.run,
         description=extractContent.description,
     ),
+    Tool(
+        name="Run a bash command",
+        func=BashProcess().run,
+        description="useful for when you want to run a bash command"
+    ),
+    TerraformValidateTool(),
+    WriteFileTool(),
+    ReadFileTool(),
+
 ]
 
 docs = [Document(page_content=t.description, metadata={"index": i}) for i, t in enumerate(tools)]
